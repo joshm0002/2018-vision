@@ -3,11 +3,16 @@ package imgcv.yellowcube;
 import org.opencv.core.Scalar;
 
 public interface PrimaryFilterConf {
-	interface Colorproc {
+	interface Procimg {
 		// TODO: tune these
+		// color limits
 		public final int[]     COLOR_MAX = {110, 220, 170};
 		public final int[]     COLOR_MIN = {90,  90,  100};
 		public final boolean[] KEEP      = {true, true, true};
+		
+		// dilate/erode
+		public final int DILATE_FACTOR = 7;
+		public final int ERODE_FACTOR = 5;
 	}
 	
 	interface Target {

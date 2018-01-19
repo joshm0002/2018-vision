@@ -12,6 +12,8 @@ import img.core.PolygonCv;
 import img.core.util.ScalarColors;
 import img.core.filters.ColorRange;
 import img.core.filters.ColorSpace;
+import img.core.filters.Dilate;
+import img.core.filters.Erode;
 import img.core.filters.MatFilter;
 import img.core.filters.Sequence;
 import img.core.util.RectangularTarget;
@@ -36,7 +38,9 @@ public class PrimaryFilter extends Filter implements MatFilter, PrimaryFilterCon
 	public static Sequence createSequence() {
 		Sequence sequence = new Sequence();
 		sequence.addFilter(ColorSpace.createRGBtoHSV());
-		sequence.addFilter(new ColorRange(Colorproc.COLOR_MIN, Colorproc.COLOR_MAX, Colorproc.KEEP));
+		sequence.addFilter(new ColorRange(Procimg.COLOR_MIN, Procimg.COLOR_MAX, Procimg.KEEP));
+		sequence.addFilter(new Dilate(Procimg.DILATE_FACTOR));
+		sequence.addFilter(new Erode(Procimg.ERODE_FACTOR));
 		return sequence;
 	}
 	
