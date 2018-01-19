@@ -1,18 +1,20 @@
 package imgcv.yellowcube;
 
 import org.opencv.core.Scalar;
+import org.opencv.core.Size;
 
 public interface PrimaryFilterConf {
 	interface Procimg {
 		// TODO: tune these
 		// color limits
-		public final int[]     COLOR_MAX = {110, 220, 170};
-		public final int[]     COLOR_MIN = {90,  90,  100};
+		public final int[]     COLOR_MAX = {110, 200, 230};
+		public final int[]     COLOR_MIN = {80,  50,  90};
 		public final boolean[] KEEP      = {true, true, true};
 		
 		// dilate/erode
 		public final int DILATE_FACTOR = 7;
 		public final int ERODE_FACTOR = 5;
+		public final Size BLUR_FACTOR = new Size(7, 7);
 	}
 	
 	interface Target {

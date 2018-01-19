@@ -10,6 +10,7 @@ import org.opencv.imgproc.Imgproc;
 
 import img.core.PolygonCv;
 import img.core.util.ScalarColors;
+import img.core.filters.Blur;
 import img.core.filters.ColorRange;
 import img.core.filters.ColorSpace;
 import img.core.filters.Dilate;
@@ -39,8 +40,9 @@ public class PrimaryFilter extends Filter implements MatFilter, PrimaryFilterCon
 		Sequence sequence = new Sequence();
 		sequence.addFilter(ColorSpace.createRGBtoHSV());
 		sequence.addFilter(new ColorRange(Procimg.COLOR_MIN, Procimg.COLOR_MAX, Procimg.KEEP));
-		sequence.addFilter(new Dilate(Procimg.DILATE_FACTOR));
 		sequence.addFilter(new Erode(Procimg.ERODE_FACTOR));
+		sequence.addFilter(new Dilate(Procimg.DILATE_FACTOR));
+		sequence.addFilter(new Blur(Procimg.BLUR_FACTOR));
 		return sequence;
 	}
 	

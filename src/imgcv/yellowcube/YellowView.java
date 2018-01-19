@@ -25,6 +25,7 @@
  */
 package imgcv.yellowcube;
 
+import img.core.filters.DoNothingFilter;
 import img.core.filters.MatFilter;
 import img.ui.LiveView;
 
@@ -62,7 +63,8 @@ public class YellowView extends LiveView {
 
 	public YellowView() {
 		super("Yellow");
-		setFilter(new PrimaryFilter());
+		//setFilter(new PrimaryFilter());
+		setFilter(new DoNothingFilter());
 	}
 	
 	public static void main(String[] args) {
