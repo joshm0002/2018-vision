@@ -12,14 +12,15 @@ public interface PrimaryFilterConf {
 		public final boolean[] KEEP      = {true, true, true};
 		
 		// dilate/erode
-		public final int DILATE_FACTOR = 7;
-		public final int ERODE_FACTOR = 5;
-		public final Size BLUR_FACTOR = new Size(7, 7);
+		public final int  DILATE_FACTOR  = 7;
+		public final int  ERODE_FACTOR   = 5;
+		// !!!WEBCAM ONLY!!!
+		public final Size WC_BLUR_FACTOR = new Size(7, 7);
 	}
 	
 	interface Target {
 		public final double CUBE_HEIGHT_INCHES = 11;
-		public final double CUBE_WIDTH_INCHES = 13;
+		public final double CUBE_WIDTH_INCHES  = 13;
 	}
 	
 	interface Camera {
@@ -32,8 +33,8 @@ public interface PrimaryFilterConf {
 	}
 	
 	interface Color {
-		public final Scalar IN_REGION_COLOR = new Scalar(100, 255, 100);
-		public final Scalar OUT_REGION_COLOR = new Scalar(150, 100, 50);
+		public final Scalar IN_REGION_COLOR     = new Scalar(100, 255, 100);
+		public final Scalar OUT_REGION_COLOR    = new Scalar(150, 100, 50);
 		public final Scalar CENTER_REGION_COLOR = new Scalar(100, 100, 100);
 	}
 }

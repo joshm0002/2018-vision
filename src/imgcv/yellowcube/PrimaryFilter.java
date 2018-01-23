@@ -28,6 +28,9 @@ public class PrimaryFilter extends Filter implements MatFilter, PrimaryFilterCon
 	
 	private Sequence sequence;
 	private RectangularTarget _Finder;
+	
+	private boolean _Debug = true;
+	
 	public PrimaryFilter() {
 		sequence = createSequence();
 		
@@ -42,7 +45,8 @@ public class PrimaryFilter extends Filter implements MatFilter, PrimaryFilterCon
 		sequence.addFilter(new ColorRange(Procimg.COLOR_MIN, Procimg.COLOR_MAX, Procimg.KEEP));
 		sequence.addFilter(new Erode(Procimg.ERODE_FACTOR));
 		sequence.addFilter(new Dilate(Procimg.DILATE_FACTOR));
-		sequence.addFilter(new Blur(Procimg.BLUR_FACTOR));
+		// TODO: !!!WEBCAM ONLY!!! defocus lens on AXIS
+		sequence.addFilter(new Blur(Procimg.WC_BLUR_FACTOR));
 		return sequence;
 	}
 	

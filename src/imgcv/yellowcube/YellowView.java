@@ -63,8 +63,8 @@ public class YellowView extends LiveView {
 
 	public YellowView() {
 		super("Yellow");
-		//setFilter(new PrimaryFilter());
-		setFilter(new DoNothingFilter());
+		setFilter(new PrimaryFilter());
+		//setFilter(new DoNothingFilter());
 	}
 	
 	public static void main(String[] args) {
