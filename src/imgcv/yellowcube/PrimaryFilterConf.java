@@ -7,8 +7,8 @@ public interface PrimaryFilterConf {
 	interface Procimg {
 		// TODO: tune these
 		// color limits
-		public final int[]     COLOR_MAX = {110, 200, 230};
-		public final int[]     COLOR_MIN = {80,  50,  90};
+		public final int[]     COLOR_MAX = {110, 255, 200};
+		public final int[]     COLOR_MIN = {90,  240, 0};
 		public final boolean[] KEEP      = {true, true, true};
 		
 		// dilate/erode

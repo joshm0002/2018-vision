@@ -8,6 +8,10 @@ import org.opencv.core.MatOfPoint;
 import org.opencv.core.Point;
 import org.opencv.imgproc.Imgproc;
 
+import edu.wpi.first.networktables.NetworkTable;
+import edu.wpi.first.networktables.NetworkTableInstance;
+import edu.wpi.first.networktables.NetworkTableEntry;
+
 import img.core.PolygonCv;
 import img.core.util.ScalarColors;
 import img.core.filters.Blur;
@@ -31,12 +35,19 @@ public class PrimaryFilter extends Filter implements MatFilter, PrimaryFilterCon
 	
 	private boolean _Debug = true;
 	
+	private int frameCount = 0;
+	
 	public PrimaryFilter() {
 		sequence = createSequence();
 		
-		// TODO: fov tune for laptop webcam (or bust out the AXIS...)
 		_Finder = new RectangularTarget(Target.CUBE_WIDTH_INCHES, Target.CUBE_HEIGHT_INCHES, 
-				Camera.RESOLUTION_X_PIXELS, Camera.RESOLUTION_Y_PIXELS, 44.136); 
+				Camera.RESOLUTION_X_PIXELS, Camera.RESOLUTION_Y_PIXELS, Camera.FOV_Y_DEGREES); 
+		
+		root = NetworkTableInstance.getDefault();
+		root.startClient("127.0.0.1"); // 10.8.68.2/noparam in "prod"
+		super.setNetworkTable(NetworkTableInstance.getDefault().getTable("SmartDashboard"));
+		frameEntry = table.getEntry("VisFrame");
+		jsonEntry = table.getEntry("RectJson");
 	}
 
 	public static Sequence createSequence() {
@@ -46,7 +57,7 @@ public class PrimaryFilter extends Filter implements MatFilter, PrimaryFilterCon
 		sequence.addFilter(new Erode(Procimg.ERODE_FACTOR));
 		sequence.addFilter(new Dilate(Procimg.DILATE_FACTOR));
 		// TODO: !!!WEBCAM ONLY!!! defocus lens on AXIS
-		sequence.addFilter(new Blur(Procimg.WC_BLUR_FACTOR));
+		// sequence.addFilter(new Blur(Procimg.WC_BLUR_FACTOR));
 		return sequence;
 	}
 	
@@ -81,6 +92,8 @@ public class PrimaryFilter extends Filter implements MatFilter, PrimaryFilterCon
 			MatOfPoint contour = contours.get(i);
 			// Hmmm, can we do a quick check on contour height/width before
 			// trying to extract polygon?
+			// TODO: put this in PrimaryFilterConf
+			// NOTE: epsilon 2nd argument below
 			PolygonCv poly = PolygonCv.fromContour(contour, 6.0);
 			int pts = poly.size();
 			float h = poly.getHeight();
@@ -89,8 +102,9 @@ public class PrimaryFilter extends Filter implements MatFilter, PrimaryFilterCon
 			float distFromTop = poly.getMinY();
 			float distFromMid = imgMid - (distFromTop + h);
 
+			// TODO: put this in PrimaryFilterConf & tune
 			if ((w > 10) && (h > 10) && (hw > 50) && (hw < 300) && (pts >= 4)
-					&& (pts <= 16)) {
+					&& (pts <= 50)) {
 				Point leftBot = new Point();
 				Point leftTop = new Point();
 				poly.findLeftEdge(leftBot, leftTop, 0.15);
@@ -172,7 +186,7 @@ public class PrimaryFilter extends Filter implements MatFilter, PrimaryFilterCon
 			}
 		}
 
-		// Draw details about target (if found)
+		// Draw details about target (if found), & send to bot
 		if (good != null) {
 			_Finder.drawVerticalLines(output);
 			_Finder.drawCrossHair(output);
@@ -180,6 +194,8 @@ public class PrimaryFilter extends Filter implements MatFilter, PrimaryFilterCon
 			_Finder.drawRobotInfo(output);
 			_Finder.drawWallInfo(output);
 		}
+		
+		super.postToNetwork(++frameCount, _Finder);
 
 		return output;
 	}

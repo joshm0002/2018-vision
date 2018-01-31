@@ -16,8 +16,10 @@ import org.opencv.core.Scalar;
 import org.opencv.imgproc.Imgproc;
 
 import img.core.PolygonCv;
-
-import edu.wpi.first.wpilibj.networktables.NetworkTable;
+import img.core.util.RectangularTarget;
+import edu.wpi.first.networktables.NetworkTable;
+import edu.wpi.first.networktables.NetworkTableEntry;
+import edu.wpi.first.networktables.NetworkTableInstance;
 
 /*
  * This class is designed to be extended by several full featured child filters
@@ -32,12 +34,13 @@ import edu.wpi.first.wpilibj.networktables.NetworkTable;
  * I'm just too lazy to make a different one...at this time, at least.
  */
 
-// shUT UP ECLIPSE
-@SuppressWarnings("deprecation")
 public abstract class Filter {
 
 	//Default Variables/Configs
-	protected NetworkTable networkTable = null;
+	protected NetworkTableInstance root       = null;
+	protected NetworkTable         table      = null;
+	protected NetworkTableEntry    frameEntry = null;
+	protected NetworkTableEntry    jsonEntry  = null;
 	protected double       frameCount   = 0; 
 	
 	//Child-instance settable configs
@@ -149,7 +152,7 @@ public abstract class Filter {
     }
 	
     public void setNetworkTable(NetworkTable nt) {
-    	networkTable = nt;
+    	table = nt;
     }
 	/**
 	 * Enable check to make sure there is a hole (all white, a.k.a. incorrect in color, pixels in binary
@@ -222,4 +225,21 @@ public abstract class Filter {
 		return (percentWhite <= 10);
 	}
 	//Static Methods
+	
+	public static boolean sleep(int millis) {
+		boolean ok = true;
+		try {
+			Thread.sleep(millis);
+		} catch (InterruptedException e) {
+			ok = false;
+		}
+		return ok;
+	}
+	
+	
+	// NetworkTables
+	public void postToNetwork(int fc, RectangularTarget json) {
+		frameEntry.setNumber(fc);
+		jsonEntry.setString(json.toString());
+	}
 }
