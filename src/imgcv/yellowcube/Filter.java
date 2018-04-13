@@ -113,7 +113,7 @@ public abstract class Filter {
         return targets;
     }
 	
-    protected PolygonCv findBestTarget(List<PolygonCv> targetList) {
+    public PolygonCv findBestTarget(List<PolygonCv> targetList) {
     	PolygonCv bestTarget = null;
     	PolygonCv currentTarget;
     	double    bestTargetValue = 0;

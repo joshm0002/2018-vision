@@ -42,7 +42,7 @@ public class PrimaryFilter extends Filter implements MatFilter, PrimaryFilterCon
 		
 		_Finder = new RectangularTarget(Target.CUBE_WIDTH_INCHES, Target.CUBE_HEIGHT_INCHES, 
 				Camera.RESOLUTION_X_PIXELS, Camera.RESOLUTION_Y_PIXELS, Camera.FOV_Y_DEGREES); 
-		
+		_Finder.setVerticalLineTolerance(.15);
 		root = NetworkTableInstance.getDefault();
 		root.startClient("127.0.0.1"); // 10.8.68.2/noparam in "prod"
 		super.setNetworkTable(NetworkTableInstance.getDefault().getTable("SmartDashboard"));
@@ -196,7 +196,18 @@ public class PrimaryFilter extends Filter implements MatFilter, PrimaryFilterCon
 		}
 		
 		super.postToNetwork(++frameCount, _Finder);
-
+		//FIXME Multiple accepted polygons, no center value reported
+		double angle = 0;
+		double distance = 0;
+		if(good != null) {
+			angle = ((good.getCenterX() - 400) * .0813);
+			distance = Distance.getDistance(good);
+		}
+		table.getEntry("CameraAngle").setNumber(angle);
+		table.getEntry("foundangle").setBoolean(good != null);
+		table.getEntry("CameraDistance").setNumber(distance);
+		//double test = (poly.getMaxX()-poly.getMinX());
+		//System.out.println(test);
 		return output;
 	}
 }
