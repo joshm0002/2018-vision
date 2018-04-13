@@ -71,4 +71,9 @@ public class YellowView extends LiveView {
 		LiveView view = new YellowView();
 		view.run();
 	}
+	
+	protected void addMenuItems() {
+		super.addMenuItems();
+		addSequence("Yellow", PrimaryFilter.createSequence());
+	}
 }

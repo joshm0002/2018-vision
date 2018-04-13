@@ -8,46 +8,38 @@ import org.opencv.core.MatOfPoint;
 import org.opencv.core.Point;
 import org.opencv.imgproc.Imgproc;
 
-import edu.wpi.first.networktables.NetworkTable;
-import edu.wpi.first.networktables.NetworkTableInstance;
-import edu.wpi.first.networktables.NetworkTableEntry;
-
 import img.core.PolygonCv;
 import img.core.util.ScalarColors;
-import img.core.filters.Blur;
 import img.core.filters.ColorRange;
 import img.core.filters.ColorSpace;
 import img.core.filters.Dilate;
 import img.core.filters.Erode;
 import img.core.filters.MatFilter;
 import img.core.filters.Sequence;
+import img.core.util.FovCalculator;
 import img.core.util.RectangularTarget;
+import imgcv.yellowcube.NTPost;
 
 public class PrimaryFilter extends Filter implements MatFilter, PrimaryFilterConf {
-	/*
-	 * TODO:
-	 * - add variables and tune stuff
-	 * - look through PinkSquare algo and see if there's anywhere I need to refactor
-	 */
 	
 	private Sequence sequence;
 	private RectangularTarget _Finder;
-	
-	private boolean _Debug = true;
+	private NTPost _Net;
+	private FovCalculator fov;
 	
 	private int frameCount = 0;
 	
 	public PrimaryFilter() {
+		_Net = new NTPost("127.0.0.1"); // 10.8.68.2
+		
 		sequence = createSequence();
 		
 		_Finder = new RectangularTarget(Target.CUBE_WIDTH_INCHES, Target.CUBE_HEIGHT_INCHES, 
 				Camera.RESOLUTION_X_PIXELS, Camera.RESOLUTION_Y_PIXELS, Camera.FOV_Y_DEGREES); 
+		// remove this and everything dies
+		_Finder.setVerticalLineTolerance(0.1);
 		
-		root = NetworkTableInstance.getDefault();
-		root.startClient("127.0.0.1"); // 10.8.68.2/noparam in "prod"
-		super.setNetworkTable(NetworkTableInstance.getDefault().getTable("SmartDashboard"));
-		frameEntry = table.getEntry("VisFrame");
-		jsonEntry = table.getEntry("RectJson");
+		fov = new FovCalculator(Camera.FOV_X_DEGREES, Camera.RESOLUTION_X_PIXELS, 100.0);
 	}
 
 	public static Sequence createSequence() {
@@ -56,12 +48,9 @@ public class PrimaryFilter extends Filter implements MatFilter, PrimaryFilterCon
 		sequence.addFilter(new ColorRange(Procimg.COLOR_MIN, Procimg.COLOR_MAX, Procimg.KEEP));
 		sequence.addFilter(new Erode(Procimg.ERODE_FACTOR));
 		sequence.addFilter(new Dilate(Procimg.DILATE_FACTOR));
-		// TODO: !!!WEBCAM ONLY!!! defocus lens on AXIS
-		// sequence.addFilter(new Blur(Procimg.WC_BLUR_FACTOR));
 		return sequence;
 	}
-	
-	// TODO: make this not DoNothingFilter
+
 	public Mat process(Mat srcImage) {
 		int hImg = srcImage.rows();
 		int wImg = srcImage.cols();
@@ -92,9 +81,7 @@ public class PrimaryFilter extends Filter implements MatFilter, PrimaryFilterCon
 			MatOfPoint contour = contours.get(i);
 			// Hmmm, can we do a quick check on contour height/width before
 			// trying to extract polygon?
-			// TODO: put this in PrimaryFilterConf
-			// NOTE: epsilon 2nd argument below
-			PolygonCv poly = PolygonCv.fromContour(contour, 6.0);
+			PolygonCv poly = PolygonCv.fromContour(contour, Constraints.POLYGON_EPSILON);
 			int pts = poly.size();
 			float h = poly.getHeight();
 			float w = poly.getWidth();
@@ -102,9 +89,9 @@ public class PrimaryFilter extends Filter implements MatFilter, PrimaryFilterCon
 			float distFromTop = poly.getMinY();
 			float distFromMid = imgMid - (distFromTop + h);
 
-			// TODO: put this in PrimaryFilterConf & tune
-			if ((w > 10) && (h > 10) && (hw > 50) && (hw < 300) && (pts >= 4)
-					&& (pts <= 50)) {
+			if ((w > Constraints.POLYGON_W_MAX) && (h > Constraints.POLYGON_H_MAX) 
+					&& (hw > Constraints.POLYGON_RAT_MIN) && (hw < Constraints.POLYGON_RAT_MAX) 
+					&& (pts >= Constraints.POLYGON_SZ_MIN) && (pts <= Constraints.POLYGON_SZ_MAX)) {
 				Point leftBot = new Point();
 				Point leftTop = new Point();
 				poly.findLeftEdge(leftBot, leftTop, 0.15);
@@ -186,6 +173,7 @@ public class PrimaryFilter extends Filter implements MatFilter, PrimaryFilterCon
 			}
 		}
 
+		fov.draw(output, 5, PrimaryFilterConf.Color.IN_REGION_COLOR, PrimaryFilterConf.Color.OUT_REGION_COLOR);
 		// Draw details about target (if found), & send to bot
 		if (good != null) {
 			_Finder.drawVerticalLines(output);
@@ -195,7 +183,7 @@ public class PrimaryFilter extends Filter implements MatFilter, PrimaryFilterCon
 			_Finder.drawWallInfo(output);
 		}
 		
-		super.postToNetwork(++frameCount, _Finder);
+		_Net.postToNetwork(++frameCount, _Finder);
 
 		return output;
 	}

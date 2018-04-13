@@ -1,11 +1,5 @@
 package imgcv.yellowcube;
 
-/*
- * Copyright (c) 2016 Caleb Smith
- * Even though he didn't put this in the original file and I could totally leave this verbatim
- * but I'm not that terrible of a person
- */
-
 import java.util.ArrayList;
 import java.util.List;
 
@@ -16,10 +10,6 @@ import org.opencv.core.Scalar;
 import org.opencv.imgproc.Imgproc;
 
 import img.core.PolygonCv;
-import img.core.util.RectangularTarget;
-import edu.wpi.first.networktables.NetworkTable;
-import edu.wpi.first.networktables.NetworkTableEntry;
-import edu.wpi.first.networktables.NetworkTableInstance;
 
 /*
  * This class is designed to be extended by several full featured child filters
@@ -34,13 +24,11 @@ import edu.wpi.first.networktables.NetworkTableInstance;
  * I'm just too lazy to make a different one...at this time, at least.
  */
 
+//// HERE BE DRAGONS ////
+
 public abstract class Filter {
 
-	//Default Variables/Configs
-	protected NetworkTableInstance root       = null;
-	protected NetworkTable         table      = null;
-	protected NetworkTableEntry    frameEntry = null;
-	protected NetworkTableEntry    jsonEntry  = null;
+	//NetworkTables
 	protected double       frameCount   = 0; 
 	
 	//Child-instance settable configs
@@ -151,9 +139,6 @@ public abstract class Filter {
     	return targetRating;
     }
 	
-    public void setNetworkTable(NetworkTable nt) {
-    	table = nt;
-    }
 	/**
 	 * Enable check to make sure there is a hole (all white, a.k.a. incorrect in color, pixels in binary
 	 * image) at a certain location within each polygon's bounding box.
@@ -234,12 +219,5 @@ public abstract class Filter {
 			ok = false;
 		}
 		return ok;
-	}
-	
-	
-	// NetworkTables
-	public void postToNetwork(int fc, RectangularTarget json) {
-		frameEntry.setNumber(fc);
-		jsonEntry.setString(json.toString());
 	}
 }

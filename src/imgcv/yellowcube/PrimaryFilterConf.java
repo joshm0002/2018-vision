@@ -7,8 +7,8 @@ public interface PrimaryFilterConf {
 	interface Procimg {
 		// TODO: tune these
 		// color limits
-		public final int[]     COLOR_MAX = {110, 255, 200};
-		public final int[]     COLOR_MIN = {90,  240, 0};
+		public final int[]     COLOR_MAX = {100, 190, 190};
+		public final int[]     COLOR_MIN = {80, 150, 120};
 		public final boolean[] KEEP      = {true, true, true};
 		
 		// dilate/erode
@@ -16,6 +16,19 @@ public interface PrimaryFilterConf {
 		public final int  ERODE_FACTOR   = 5;
 		// !!!WEBCAM ONLY!!!
 		public final Size WC_BLUR_FACTOR = new Size(7, 7);
+	}
+	
+	interface Constraints {
+		public final double POLYGON_EPSILON = 6.0;
+		
+		public final double POLYGON_SZ_MAX = 50;
+		public final double POLYGON_SZ_MIN = 4;
+		
+		public final double POLYGON_H_MAX = 10;
+		public final double POLYGON_W_MAX = 10;
+		
+		public final double POLYGON_RAT_MIN = 50;
+		public final double POLYGON_RAT_MAX = 300;
 	}
 	
 	interface Target {
